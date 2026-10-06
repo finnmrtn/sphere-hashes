@@ -44,24 +44,21 @@ document.querySelector('.avatar').innerHTML = sphereHash('jesse', { shape: 'roun
 
 | Option     | Values                                   | Default    |
 | ---------- | ---------------------------------------- | ---------- |
-| `style`    | `sphere`, `mesh`, `flat`, `dither`       | `sphere`   |
 | `palette`  | `studio`, `warm`, `cool`, `mono`         | `studio`   |
 | `shape`    | `circle`, `rounded`, `square`            | `circle`   |
 | `size`     | any number, sets `width` and `height`    | `100`      |
-| `initials` | `true` draws up to two letters on top    | `false`    |
 
-`sphere` is the one in the demo. `mesh` is three blurred blobs, `flat` is a disc on a ground, `dither` is the same blobs through a Bayer matrix. The `mono` palette is greys with a hint of blue.
+The `mono` palette is greys with a hint of blue.
 
 The viewBox is always `0 0 100 100`, so an avatar scales to any size without a re-render.
 
 ## Also exported
 
 ```js
-import { sphereHashColors, hash, initials, STYLES, PALETTES, SHAPES } from 'sphere-hashes';
+import { sphereHashColors, hash, PALETTES, SHAPES } from 'sphere-hashes';
 
 sphereHashColors('finn'); // ['#554ad7', '#1f2e34', '#2e4dd5', '#cca83c']
 hash('finn');             // 2323125802, the 32 bit hash everything is drawn from
-initials('finn.marten');  // 'FM'
 ```
 
 ## How it works

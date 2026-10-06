@@ -1,6 +1,6 @@
 {
   "name": "sphere-hashes",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "A deterministic sphere avatar for any string. Same seed, same sphere.",
   "type": "module",
   "main": "./src/index.js",

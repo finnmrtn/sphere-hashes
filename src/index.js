@@ -96,22 +96,13 @@ function smoothStops(keys, n) {
   return out;
 }
 
-function initials(seed) {
-  let s = seed.trim(); if (s.includes('@')) s = s.split('@')[0];
-  const parts = s.split(/[\s._\-]+/).filter(Boolean);
-  if (!parts.length) return '?';
-  const pick = parts.length > 1 ? parts[0][0] + parts[1][0] : parts[0].slice(0, 2);
-  return pick.toUpperCase();
-}
-
 function build(seed, o) {
-  const id = 'sh' + hash(seed + '|' + o.style + '|' + o.palette + '|' + o.shape).toString(36);
-  const pal = palette(seed, o.palette), r = rng(hash(seed + '|shape'));
-  const blobs = [1, 2, 3].map(i => ({ x: lerp(-5, 105, r()), y: lerp(-5, 105, r()), rad: lerp(28, 52, r()), c: pal[i] }));
+  const id = 'sh' + hash(seed + '|' + o.palette + '|' + o.shape).toString(36);
+  const pal = palette(seed, o.palette);
   const clip = o.shape === 'circle' ? `<circle cx="50" cy="50" r="50"/>` : `<rect width="100" height="100" rx="${o.shape === 'rounded' ? 24 : 0}"/>`;
   let fill = '', sphereDefs = '';
 
-  if (o.style === 'sphere') {
+  {
     const S = sphereColors(seed, o.palette);
     pal.splice(0, 4, ...S.swatch);
     const cx = 50, cy = 50, R = 28;
@@ -140,61 +131,21 @@ function build(seed, o) {
          now runs on past the spill and fades to nothing at its end */
       `<linearGradient id="${id}mg2" x1="0" y1="0" x2="0" y2="1"><stop offset="0.4" stop-color="#000"/><stop offset="0.62" stop-color="#fff"/><stop offset="0.8" stop-color="#fff"/><stop offset="1" stop-color="#000"/></linearGradient>` +
       `<mask id="${id}m2" maskUnits="userSpaceOnUse" x="0" y="0" width="100" height="100"><rect x="${cx - R - 20}" y="${cy - R}" width="${2 * R + 40}" height="${2 * R + 34}" fill="url(#${id}mg2)"/></mask>`;
-  } else if (o.style === 'mesh') {
-    fill = `<rect width="100" height="100" fill="${pal[0].hex}"/><g filter="url(#${id}b)">` +
-      blobs.map(b => `<circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${b.rad.toFixed(1)}" fill="${b.c.hex}"/>`).join('') + `</g>`;
-  } else if (o.style === 'flat') {
-    const b = blobs[0];
-    fill = `<rect width="100" height="100" fill="${pal[0].hex}"/><circle cx="${b.x.toFixed(1)}" cy="${b.y.toFixed(1)}" r="${(b.rad * 1.1).toFixed(1)}" fill="${pal[1].hex}"/>`;
-  } else {
-    const N = 20, cell = 100 / N;
-    const bayer = [0, 8, 2, 10, 12, 4, 14, 6, 3, 11, 1, 9, 15, 7, 13, 5].map(v => (v + 0.5) / 16);
-    const colors = [pal[0].hex, ...blobs.map(b => b.c.hex)];
-    const rows = [];
-    for (let y = 0; y < N; y++) {
-      let run = null;
-      for (let x = 0; x <= N; x++) {
-        let ci = -1;
-        if (x < N) {
-          const px = (x + 0.5) * cell, py = (y + 0.5) * cell;
-          const inf = [0.32, ...blobs.map(b => Math.exp(-((px - b.x) ** 2 + (py - b.y) ** 2) / (b.rad * b.rad * 0.7)))];
-          let a = 0, bI = 1; if (inf[1] > inf[0]) { a = 1; bI = 0; }
-          for (let k = 2; k < inf.length; k++) { if (inf[k] > inf[a]) { bI = a; a = k; } else if (inf[k] > inf[bI]) bI = k; }
-          const t = inf[bI] / (inf[a] + inf[bI]);
-          ci = (t * 1.6 > bayer[(y % 4) * 4 + (x % 4)] + 0.3) ? bI : a;
-        }
-        if (run && run.c === ci) { run.w++; continue; }
-        if (run) rows.push(`<rect x="${(run.x * cell).toFixed(2)}" y="${(y * cell).toFixed(2)}" width="${(run.w * cell + 0.05).toFixed(2)}" height="${(cell + 0.05).toFixed(2)}" fill="${colors[run.c]}"/>`);
-        run = { x, w: 1, c: ci };
-      }
-    }
-    fill = rows.join('');
   }
 
-  const avgL = (pal[0].L * 2 + pal[1].L + pal[2].L + pal[3].L) / 5;
-  const ink = o.style === 'sphere' ? '#ffffff' : (avgL > 0.36 ? '#242424' : '#ffffff');
-  let overlay = '';
-  if (o.overlay === 'initials') {
-    overlay = `<text x="50" y="50" dy="0.35em" text-anchor="middle" font-family="Geist, ui-sans-serif, system-ui, sans-serif" font-weight="600" font-size="36" letter-spacing="-1" fill="${ink}" fill-opacity="0.9">${initials(seed)}</text>`;
-  }
-
-  const defs = `<defs><clipPath id="${id}c">${clip}</clipPath>${sphereDefs}` +
-    (o.style === 'mesh' ? `<filter id="${id}b" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="13"/></filter>` : '') + `</defs>`;
-  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="${esc(seed)}">${defs}<g clip-path="url(#${id}c)">${fill}${overlay}</g></svg>`;
+  const defs = `<defs><clipPath id="${id}c">${clip}</clipPath>${sphereDefs}</defs>`;
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" width="100" height="100" role="img" aria-label="${esc(seed)}">${defs}<g clip-path="url(#${id}c)">${fill}</g></svg>`;
   return { svg, pal };
 }
 function esc(s) { return s.replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]); }
 
-const STYLES = ['sphere', 'mesh', 'flat', 'dither'];
 const PALETTES = Object.keys(FAMILIES);
 const SHAPES = ['circle', 'rounded', 'square'];
 
 function normalise(seed, options = {}) {
   const o = {
-    style: STYLES.includes(options.style) ? options.style : 'sphere',
     palette: PALETTES.includes(options.palette) ? options.palette : 'studio',
     shape: SHAPES.includes(options.shape) ? options.shape : 'circle',
-    overlay: options.initials ? 'initials' : 'none',
     size: options.size > 0 ? options.size : 100,
   };
   return [String(seed ?? '').trim() || ' ', o];
@@ -204,11 +155,9 @@ function normalise(seed, options = {}) {
  * The avatar as an SVG string.
  * @param {string} seed  any string: a name, an email, an id
  * @param {object} [options]
- * @param {'sphere'|'mesh'|'flat'|'dither'} [options.style='sphere']
  * @param {'studio'|'warm'|'cool'|'mono'} [options.palette='studio']
  * @param {'circle'|'rounded'|'square'} [options.shape='circle']
  * @param {number} [options.size=100]  width and height attributes, the viewBox stays 100
- * @param {boolean} [options.initials=false]  draw the seed's initials on top
  */
 export function sphereHash(seed, options) {
   const [s, o] = normalise(seed, options);
@@ -227,4 +176,4 @@ export function sphereHashColors(seed, options) {
   return build(s, o).pal.map((c) => c.hex);
 }
 
-export { hash, initials, STYLES, PALETTES, SHAPES };
+export { hash, PALETTES, SHAPES };

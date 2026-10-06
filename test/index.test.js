@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { sphereHash, sphereHashUrl, sphereHashColors, hash, initials, STYLES, PALETTES, SHAPES } from '../src/index.js';
+import { sphereHash, sphereHashUrl, sphereHashColors, hash, PALETTES, SHAPES } from '../src/index.js';
 
 test('same seed, same sphere', () => {
   assert.equal(sphereHash('finn'), sphereHash('finn'));
@@ -13,9 +13,9 @@ test('is an svg', () => {
   assert.ok(svg.endsWith('</svg>'));
 });
 
-test('every style, palette and shape renders', () => {
-  for (const style of STYLES) for (const palette of PALETTES) for (const shape of SHAPES) {
-    assert.ok(sphereHash('x', { style, palette, shape }).includes('<svg'));
+test('every palette and shape renders', () => {
+  for (const palette of PALETTES) for (const shape of SHAPES) {
+    assert.ok(sphereHash('x', { palette, shape }).includes('<svg'));
   }
 });
 
@@ -23,12 +23,6 @@ test('size only changes the attributes', () => {
   const a = sphereHash('finn'), b = sphereHash('finn', { size: 256 });
   assert.ok(b.includes('width="256" height="256"'));
   assert.equal(a.replace('width="100" height="100"', ''), b.replace('width="256" height="256"', ''));
-});
-
-test('initials sit on top when asked', () => {
-  assert.ok(sphereHash('Finn Marten', { initials: true }).includes('>FM<'));
-  assert.ok(!sphereHash('Finn Marten').includes('<text'));
-  assert.equal(initials('finn.marten@example.com'), 'FM');
 });
 
 test('data url and colours', () => {
@@ -39,7 +33,7 @@ test('data url and colours', () => {
 });
 
 test('unknown options fall back', () => {
-  assert.equal(sphereHash('finn', { style: 'nope', palette: 'nope', shape: 'nope' }), sphereHash('finn'));
+  assert.equal(sphereHash('finn', { palette: 'nope', shape: 'nope' }), sphereHash('finn'));
 });
 
 test('empty seeds still draw', () => {
