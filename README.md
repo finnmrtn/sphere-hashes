@@ -4,7 +4,7 @@ A sphere for every name. Give it a string, get a small SVG: a glass ball on a co
 
 Made for placeholder avatars, but it works for anything that needs a stable picture for an id: team members, API keys, documents, workspaces.
 
-Try it at [studiosphere.co/avatar](https://www.studiosphere.co/avatar).
+Docs with live examples at [studiosphere.co/avatar/docs](https://www.studiosphere.co/avatar/docs). Try it with the glass at [studiosphere.co/avatar](https://www.studiosphere.co/avatar).
 
 ## Install
 
