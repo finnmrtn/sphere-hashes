@@ -1,0 +1,45 @@
+{
+  "name": "sphere-hashes",
+  "version": "0.1.0",
+  "description": "A deterministic sphere avatar for any string. Same seed, same sphere.",
+  "type": "module",
+  "main": "./src/index.js",
+  "module": "./src/index.js",
+  "types": "./src/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./src/index.d.ts",
+      "import": "./src/index.js",
+      "default": "./src/index.js"
+    }
+  },
+  "files": [
+    "src"
+  ],
+  "sideEffects": false,
+  "scripts": {
+    "test": "node --test"
+  },
+  "keywords": [
+    "avatar",
+    "identicon",
+    "svg",
+    "hash",
+    "gradient",
+    "sphere",
+    "placeholder"
+  ],
+  "author": "Studio Sphere <hello@studiosphere.co> (https://www.studiosphere.co)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/finnmrtn/sphere-hashes.git"
+  },
+  "homepage": "https://www.studiosphere.co/avatar",
+  "bugs": {
+    "url": "https://github.com/finnmrtn/sphere-hashes/issues"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
